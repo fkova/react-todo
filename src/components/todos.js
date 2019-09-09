@@ -2,7 +2,8 @@ import React from 'react'
 import axios from 'axios';
 class Todos extends React.Component {
     state = {
-        todos: []
+        todos: [],
+        newText: ''
     }
 
     componentDidMount() {
@@ -21,15 +22,29 @@ class Todos extends React.Component {
     deleteTodo = (id) =>{
         axios.delete('https://tbi50kh7ll.execute-api.us-east-2.amazonaws.com/Prod/todo/'+id)
             .then((data) => {
-                console.log(data);
                 this.getTodos();
             })
             .catch(console.log)
     }
 
+    updateTodo = (id) => {
+        axios.put('https://tbi50kh7ll.execute-api.us-east-2.amazonaws.com/Prod/todo/' + id,
+            {
+                todo_title: this.state.newText
+            }
+        )
+        .then((data) => {
+            this.getTodos();
+        })
+        .catch(console.log)
+    }
+
+    setText = (e) =>{
+        this.setState({ newText: e.target.value });
+    }
+
     render(){
         return (
-
             <table className="table table-striped col-md-6">
                 <thead>
                     <tr>
@@ -41,9 +56,11 @@ class Todos extends React.Component {
                 <tbody>
                     {this.state.todos.map((todo) => (
                         <tr>
-                            <td>{todo.todo_title}</td>
+                            <td><input type="text" defaultValue={todo.todo_title} onChange={this.setText}></input></td>
                             <td>
-                                <button onClick={() => this.deleteTodo(todo.todo_id)}>Delete</button>
+                                <button className="btn btn-primary" onClick={() => this.updateTodo(todo.todo_id)}>Update</button>
+                                &nbsp;
+                                <button className="btn btn-danger" onClick={() => this.deleteTodo(todo.todo_id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -51,7 +68,6 @@ class Todos extends React.Component {
             </table>
         )
     }
-    
 };
 
 export default Todos
